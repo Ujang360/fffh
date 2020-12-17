@@ -41,5 +41,5 @@ fn ls(file_pattern: &str) -> IOResult<()> {
 }
 
 fn main() {
-    ls(".bash_history").unwrap();
+    ls("**/.bash_history").unwrap();
 }
