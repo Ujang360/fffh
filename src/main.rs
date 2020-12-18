@@ -1,11 +1,12 @@
 use byte_unit::Byte;
 use chrono::{DateTime, SecondsFormat, Utc};
 use glob::glob;
+use std::env::args;
 use std::io::{Error as IOError, ErrorKind as IOErrorKind, Result as IOResult};
 use tabular::{Row, Table};
 
 fn ls(file_pattern: &str) -> IOResult<()> {
-    let mut table = Table::new("{:<} | {:<} | {:<}");
+    let mut table = Table::new("{:<} | {:>} | {:<}");
     let all_results = glob(file_pattern);
 
     if all_results.is_err() {
@@ -26,7 +27,7 @@ fn ls(file_pattern: &str) -> IOResult<()> {
             Row::new()
                 .with_cell(modified_time.to_rfc3339_opts(SecondsFormat::Millis, true))
                 .with_cell(format!(
-                    "{:>6}",
+                    "{:>8}",
                     Byte::from_bytes(metadata.len() as u128)
                         .get_appropriate_unit(true)
                         .to_string()
@@ -41,5 +42,13 @@ fn ls(file_pattern: &str) -> IOResult<()> {
 }
 
 fn main() {
-    ls("**/.bash_history").unwrap();
+    let mut arguments = args().collect::<Vec<String>>();
+
+    if arguments.len() != 2 {
+        eprintln!("Invalid argument!");
+        return;
+    }
+
+    let file_to_search = arguments.remove(1);
+    ls(&format!("**/{}", file_to_search)).unwrap();
 }
